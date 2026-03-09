@@ -9,7 +9,7 @@ export class Skybox {
     this.scene.background = new THREE.Color(0x000010);
   }
 
-  load(path = "/assets/skybox/space/") {
+  load(path = "assets/skybox/space/") {
     const skyboxPaths = [
       `${path}+X.jpg`,
       `${path}-X.jpg`,

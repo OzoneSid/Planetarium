@@ -11,7 +11,7 @@ export class Sun extends CelestialBody {
     const geometry = new THREE.SphereGeometry(SCALE.SUN_RADIUS, 64, 64);
 
     const loader = new Loader();
-    const texture = loader.loadTexture("/assets/textures/sun/sun.jpg");
+    const texture = loader.loadTexture("assets/textures/sun/sun.jpg");
     texture.colorSpace = THREE.SRGBColorSpace;
 
     //  MATÉRIAU (auto-éclairé)
