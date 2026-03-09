@@ -1,0 +1,29 @@
+#scene3d {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: auto;
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+#hud,
+#controls {
+  pointer-events: auto;
+  position: absolute;
+  color: white;
+  font-family: sans-serif;
+}
+
+#hud {
+  top: 1rem;
+  left: 1rem;
+}
+
+#controls {
+  pointer-events: auto;
+}
