@@ -40,8 +40,6 @@ export class Planet extends CelestialBody {
 
     this.lod.addLevel(farMesh, lodDistance);
 
-    this.anchor.rotation.z = THREE.MathUtils.degToRad(axialTilt);
-
-    this.anchor.add(this.lod);
+    this.axialTiltPivot.add(this.lod);
   }
 }
