@@ -1,3 +1,29 @@
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: sans-serif;
+  z-index: 9999;
+}
+
+#loading-bar {
+  width: 300px;
+  height: 6px;
+  background: #222;
+  margin-top: 20px;
+}
+
+#loading-progress {
+  width: 0%;
+  height: 100%;
+  background: white;
+}
+
 #scene3d {
   position: fixed;
   inset: 0;
