@@ -7,18 +7,21 @@ import { Loader } from "../utils/Loader.js";
 import { SCALE, DISTANCE, SPEED } from "../utils/Constants.js";
 
 export class SolarSystem extends THREE.Group {
-  constructor(scene) {
+  constructor(scene, loader) {
     super();
 
-    const loader = new Loader();
+    this.scene = scene;
+    this.loader = loader;
+
+    this.loader = new Loader();
 
     // ========= SOLEIL =========
-    this.sun = new Sun();
+    this.sun = new Sun(this.scene, this.loader);
     this.add(this.sun);
 
     // ============ TEXTURES MERCURE =============
 
-    const mercuryTexture = loader.loadTexture(
+    const mercuryTexture = this.loader.loadTexture(
       "assets/textures/mercury/2k_mercury.jpg",
     );
     mercuryTexture.colorSpace = THREE.SRGBColorSpace;
@@ -57,7 +60,7 @@ export class SolarSystem extends THREE.Group {
 
     // ============ TEXTURES VENUS =============
 
-    const venusTexture = loader.loadTexture(
+    const venusTexture = this.loader.loadTexture(
       "assets/textures/venus/2k_venus_surface.jpg",
     );
     venusTexture.colorSpace = THREE.SRGBColorSpace;
@@ -96,19 +99,19 @@ export class SolarSystem extends THREE.Group {
     this.sun.add(venusOrbit);
 
     // ========= TEXTURES TERRE =========
-    const earthDay = loader.loadTexture(
+    const earthDay = this.loader.loadTexture(
       "assets/textures/earth/earth_daymap.jpg",
     );
     earthDay.colorSpace = THREE.SRGBColorSpace;
     earthDay.wrapS = earthDay.wrapT = THREE.RepeatWrapping;
 
-    const earthNight = loader.loadTexture(
+    const earthNight = this.loader.loadTexture(
       "assets/textures/earth/earth_nightmap.jpg",
     );
     earthNight.colorSpace = THREE.SRGBColorSpace;
     earthNight.wrapS = earthNight.wrapT = THREE.RepeatWrapping;
 
-    const earthClouds = loader.loadTexture(
+    const earthClouds = this.loader.loadTexture(
       "assets/textures/earth/earth_clouds.png",
     );
     earthClouds.colorSpace = THREE.SRGBColorSpace;
@@ -339,7 +342,9 @@ void main() {
     this.sun.addSatellite(this.earth);
 
     // ====== TEXTURE LUNE =====
-    const moonTexture = loader.loadTexture("assets/textures/moon/moon.jpg");
+    const moonTexture = this.loader.loadTexture(
+      "assets/textures/moon/moon.jpg",
+    );
     moonTexture.colorSpace = THREE.SRGBColorSpace;
 
     // ========= LUNE =========
@@ -423,7 +428,9 @@ void main() {
 
     // ============ TEXTURES MARS =============
 
-    const marsTexture = loader.loadTexture("assets/textures/mars/2k_mars.jpg");
+    const marsTexture = this.loader.loadTexture(
+      "assets/textures/mars/2k_mars.jpg",
+    );
     marsTexture.colorSpace = THREE.SRGBColorSpace;
 
     const marsMaterial = new THREE.MeshStandardMaterial({
@@ -461,7 +468,7 @@ void main() {
 
     // ============ TEXTURES JUPITER =============
 
-    const jupiterTexture = loader.loadTexture(
+    const jupiterTexture = this.loader.loadTexture(
       "assets/textures/jupiter/2k_jupiter.jpg",
     );
     jupiterTexture.colorSpace = THREE.SRGBColorSpace;
@@ -501,7 +508,7 @@ void main() {
 
     // ============ TEXTURES SATURNE =============
 
-    const saturnTexture = loader.loadTexture(
+    const saturnTexture = this.loader.loadTexture(
       "assets/textures/saturn/2k_saturn.jpg",
     );
     saturnTexture.colorSpace = THREE.SRGBColorSpace;
@@ -541,7 +548,7 @@ void main() {
 
     // ============ TEXTURES URANUS =============
 
-    const uranusTexture = loader.loadTexture(
+    const uranusTexture = this.loader.loadTexture(
       "assets/textures/uranus/2k_uranus.jpg",
     );
     uranusTexture.colorSpace = THREE.SRGBColorSpace;
@@ -581,7 +588,7 @@ void main() {
 
     // ============ TEXTURES NEPTUNE =============
 
-    const neptuneTexture = loader.loadTexture(
+    const neptuneTexture = this.loader.loadTexture(
       "assets/textures/neptune/2k_neptune.jpg",
     );
     neptuneTexture.colorSpace = THREE.SRGBColorSpace;

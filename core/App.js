@@ -4,15 +4,17 @@ import { Skybox } from "../world/Skybox.js";
 import { UIManager } from "../ui/UIManager.js";
 import { CameraManager } from "./CameraManager.js";
 import { SelectionManager } from "./SelectionManager.js";
+import { Loader } from "../utils/Loader.js";
 
 export class App {
   constructor() {
     this.sceneManager = new SceneManager();
 
-    this.solarSystem = new SolarSystem(this.sceneManager.scene);
-    this.skybox = new Skybox(this.sceneManager.scene);
+    this.loader = new Loader();
 
-    this.skybox.load();
+    this.solarSystem = new SolarSystem(this.sceneManager.scene, this.loader);
+
+    this.skybox = new Skybox(this.sceneManager.scene, this.loader);
 
     this.ui = new UIManager({
       time: this.sceneManager.time,
@@ -32,5 +34,7 @@ export class App {
     this.sceneManager.setCameraManager(this.cameraManager);
 
     this.sceneManager.start();
+
+    this.skybox.load();
   }
 }

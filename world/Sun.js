@@ -4,14 +4,16 @@ import { Loader } from "../utils/Loader.js";
 import { SCALE, SPEED } from "../utils/Constants.js";
 
 export class Sun extends CelestialBody {
-  constructor() {
+  constructor(scene, loader) {
     super();
+
+    this.scene = scene;
+    this.loader = loader;
 
     //  GÉOMÉTRIE
     const geometry = new THREE.SphereGeometry(SCALE.SUN_RADIUS, 64, 64);
 
-    const loader = new Loader();
-    const texture = loader.loadTexture("assets/textures/sun/sun.jpg");
+    const texture = this.loader.loadTexture("assets/textures/sun/sun.jpg");
     texture.colorSpace = THREE.SRGBColorSpace;
 
     //  MATÉRIAU (auto-éclairé)
