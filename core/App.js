@@ -16,6 +16,8 @@ export class App {
 
     this.skybox = new Skybox(this.sceneManager.scene, this.loader);
 
+    this.skybox.load();
+
     this.ui = new UIManager({
       time: this.sceneManager.time,
     });
