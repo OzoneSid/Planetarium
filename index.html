@@ -29,9 +29,30 @@
       </div>
       <canvas id="scene3d" tabindex="0"></canvas>
 
-      <div id="ui">
-        <div id="hud"></div>
-        <div id="controls"></div>
+      <div id="main-ui">
+        <div id="menu-button">☉</div>
+
+        <div id="dropdown-menu" class="hidden">
+          <ul id="body-list"></ul>
+        </div>
+
+        <div id="time-menu" class="hidden">
+          <button id="time-backward">◀</button>
+          <button id="time-pause">⏸</button>
+          <button id="time-forward">▶</button>
+          <span id="time-factor">x1</span>
+        </div>
+      </div>
+
+      <div id="mobile-warning" class="mobile-warning hidden">
+        <div class="mobile-warning-content">
+          <h1>Mobile not supported</h1>
+          <p>
+            Planetarium is not optimized for mobile devices yet. Please open on
+            a desktop or laptop for the full experience.
+          </p>
+          <button id="mobile-warning-dismiss">Load anyway</button>
+        </div>
       </div>
     </div>
   </body>

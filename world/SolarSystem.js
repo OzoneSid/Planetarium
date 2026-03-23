@@ -7,17 +7,19 @@ import { Loader } from "../utils/Loader.js";
 import { SCALE, DISTANCE, SPEED } from "../utils/Constants.js";
 
 export class SolarSystem extends THREE.Group {
-  constructor(scene, loader) {
+  constructor(scene) {
     super();
 
     this.scene = scene;
-    this.loader = loader;
 
     this.loader = new Loader();
+
+    this.bodies = [];
 
     // ========= SOLEIL =========
     this.sun = new Sun(this.scene, this.loader);
     this.add(this.sun);
+    this.registerBody(this.sun);
 
     // ============ TEXTURES MERCURE =============
 
@@ -47,6 +49,7 @@ export class SolarSystem extends THREE.Group {
     });
 
     this.sun.add(this.mercury);
+    this.registerBody(this.mercury);
 
     const mercuryOrbit = new Orbit(
       this.mercury.orbit.radius,
@@ -87,6 +90,7 @@ export class SolarSystem extends THREE.Group {
     });
 
     this.sun.add(this.venus);
+    this.registerBody(this.venus);
 
     const venusOrbit = new Orbit(
       this.venus.orbit.radius,
@@ -225,6 +229,7 @@ gl_FragColor = finalColor;
     });
 
     this.sun.add(this.earth);
+    this.registerBody(this.earth);
 
     const earthOrbit = new Orbit(
       this.earth.orbit.radius,
@@ -416,6 +421,7 @@ void main() {
     });
 
     this.earth.addSatellite(this.moon);
+    this.registerSatellite(this.earth, this.moon);
 
     const moonOrbitLine = new Orbit(
       this.moon.orbit.radius,
@@ -455,6 +461,7 @@ void main() {
     });
 
     this.sun.add(this.mars);
+    this.registerBody(this.mars);
 
     const marsOrbit = new Orbit(
       this.mars.orbit.radius,
@@ -495,6 +502,7 @@ void main() {
     });
 
     this.sun.add(this.jupiter);
+    this.registerBody(this.jupiter);
 
     const jupiterOrbit = new Orbit(
       this.jupiter.orbit.radius,
@@ -575,6 +583,7 @@ void main() {
     });
 
     this.sun.add(this.uranus);
+    this.registerBody(this.uranus);
 
     const uranusOrbit = new Orbit(
       this.uranus.orbit.radius,
@@ -615,6 +624,7 @@ void main() {
     });
 
     this.sun.add(this.neptune);
+    this.registerBody(this.neptune);
 
     const neptuneOrbit = new Orbit(
       this.neptune.orbit.radius,
@@ -629,6 +639,30 @@ void main() {
     // ============== FIN DE GENERATION ==================
 
     scene.add(this);
+  }
+
+  registerBody(body) {
+    body.childrenBodies = [];
+    this.bodies.push(body);
+  }
+
+  registerSatellite(parent, satellite) {
+    satellite.childrenBodies = [];
+    parent.childrenBodies.push(satellite);
+  }
+
+  buildNode(body) {
+    return {
+      name: body.name,
+      ref: body,
+      children: (body.childrenBodies || []).map((child) =>
+        this.buildNode(child),
+      ),
+    };
+  }
+
+  getAllBodies() {
+    return this.bodies.map((body) => this.buildNode(body));
   }
 
   update(delta) {

@@ -28,7 +28,7 @@ export class Loader {
     return this.textureLoader.load(path);
   }
 
-  loadSkybox(paths) {
-    return this.cubeTextureLoader.load(paths);
+  loadSkybox(paths, onLoad) {
+    return this.cubeTextureLoader.load(paths, onLoad);
   }
 }
