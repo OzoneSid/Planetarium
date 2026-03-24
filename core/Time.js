@@ -1,13 +1,15 @@
+import * as THREE from "three";
+
 export class Time {
   constructor() {
     this.start = performance.now();
     this.current = this.start;
     this.delta = 0;
 
-    // Multiplicateur de temps (1 = temps réel)
+    // Multiplicateur de temps
     this.timeScale = 1;
 
-    // Sécurité anti-gros sauts
+    // Sécurité anti-sauts
     this.maxDelta = 0.05; // 50 ms
   }
 
@@ -27,6 +29,6 @@ export class Time {
   }
 
   setTimeScale(value) {
-    this.timeScale = Math.max(0, value);
+    this.timeScale = value;
   }
 }
