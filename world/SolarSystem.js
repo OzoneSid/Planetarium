@@ -3,21 +3,24 @@ import { Sun } from "./Sun.js";
 import { Planet } from "./Planet.js";
 import { Moon } from "./Moon.js";
 import { Orbit } from "./Orbit.js";
-import { Loader } from "../utils/Loader.js";
+import { PlanetMaterialFactory } from "../materials/PlanetMaterialFactory.js";
 import { SCALE, DISTANCE, SPEED } from "../utils/Constants.js";
 
 export class SolarSystem extends THREE.Group {
-  constructor(scene) {
+  constructor(scene, loader, shaderManager) {
     super();
 
     this.scene = scene;
+    this.loader = loader;
+    this.shaderManager = shaderManager;
 
-    this.loader = new Loader();
+    this.materialFactory = new PlanetMaterialFactory(this.shaderManager);
 
     this.bodies = [];
 
     // ========= SOLEIL =========
     this.sun = new Sun(this.scene, this.loader);
+    this.sun.name = "Sun";
     this.add(this.sun);
     this.registerBody(this.sun);
 
@@ -28,9 +31,10 @@ export class SolarSystem extends THREE.Group {
     );
     mercuryTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const mercuryMaterial = new THREE.MeshStandardMaterial({
+    const mercuryMaterial = this.materialFactory.create({
       map: mercuryTexture,
     });
+
     // ============ MERCURE ==============
 
     this.mercury = new Planet({
@@ -68,7 +72,7 @@ export class SolarSystem extends THREE.Group {
     );
     venusTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const venusMaterial = new THREE.MeshStandardMaterial({
+    const venusMaterial = this.materialFactory.create({
       map: venusTexture,
     });
 
@@ -121,91 +125,15 @@ export class SolarSystem extends THREE.Group {
     earthClouds.colorSpace = THREE.SRGBColorSpace;
 
     // ========= SHADER TERRE  =========
-    const earthMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        dayMap: { value: earthDay },
-        nightMap: { value: earthNight },
-        sunDirectionWorld: { value: new THREE.Vector3() },
-        moonShadowFactor: { value: 0.0 },
-        moonDirectionWorld: { value: new THREE.Vector3() },
-        moonAngularRadius: { value: 0.25 },
-      },
-
-      vertexShader: `
-        varying vec3 vWorldNormal;
-        varying vec2 vUv;
-
-        void main() {
-          vUv = uv;
-
-          vWorldNormal = normalize(mat3(modelMatrix) * normal);
-
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-
-      fragmentShader: `
-        precision mediump float;
-
-        uniform sampler2D dayMap;
-        uniform sampler2D nightMap;
-        uniform vec3 sunDirectionWorld;
-        uniform float moonShadowFactor;
-        uniform vec3 moonDirectionWorld;
-        uniform float moonAngularRadius;
-
-        varying vec3 vWorldNormal;
-        varying vec2 vUv;
-
-        void main() {
-         vec3 normal = normalize(vWorldNormal);
-vec3 sunDir = normalize(sunDirectionWorld);
-
-float ndl = dot(normal, sunDir);
-float dayMix = smoothstep(-0.2, 0.2, ndl);
-
-vec4 dayColor = texture2D(dayMap, vUv);
-vec4 nightColor = texture2D(nightMap, vUv);
-
-vec4 finalColor = mix(nightColor, dayColor, dayMix);
-
-
-// =======================
-// OMBRE LUNAIRE 
-// =======================
-
-vec3 moonDir = normalize(moonDirectionWorld);
-
-// uniquement côté jour
-float dayMask = step(0.0, dot(normal, sunDir));
-
-// projection locale (pas globale)
-float angular = dot(normal, moonDir);
-
-float radial = smoothstep(
-    cos(moonAngularRadius * 2.5),
-    cos(moonAngularRadius * 0.2),
-    angular
-);
-
-// ombre finale
-float moonShadow = moonShadowFactor * radial * dayMask;
-
-// réduit l'impact lorsque le soleil est rasant
-float sunFade = smoothstep(0.0, 0.6, dot(normal, sunDir));
-moonShadow *= sunFade;
-
-// application douce
-float softness = smoothstep(0.0, 1.0, moonShadow);
-finalColor.rgb *= (1.0 - softness * 0.85);
-
-
-gl_FragColor = finalColor;
-    }
-      `,
+    const earthMaterial = this.materialFactory.create({
+      map: earthDay,
+      nightMap: earthNight,
+      useNightMap: true,
+      useMoonShadow: true,
     });
 
     earthMaterial.userData = {
+      isClouds: true,
       cloudMap: earthClouds,
     };
 
@@ -216,7 +144,7 @@ gl_FragColor = finalColor;
       name: "Earth",
       radius: SCALE.EARTH_RADIUS,
       material: earthMaterial,
-      rotationSpeed: 0.3,
+      rotationSpeed: 0.15,
       axialTilt: 23.44,
       orbit: {
         radius: DISTANCE.EARTH_ORBIT,
@@ -250,79 +178,15 @@ gl_FragColor = finalColor;
       64,
     );
 
-    const cloudMaterial = new THREE.ShaderMaterial({
+    const cloudMaterial = this.materialFactory.create({
+      map: earthClouds,
+      useNightMap: false,
       transparent: true,
       depthWrite: false,
-      uniforms: {
-        cloudMap: { value: earthClouds },
-        sunDirectionWorld: { value: new THREE.Vector3() },
-        moonDirectionWorld: { value: new THREE.Vector3() },
-        moonAngularRadius: { value: 0.0 },
-        moonShadowFactor: { value: 0.0 },
-      },
-      vertexShader: `
-    varying vec3 vWorldNormal;
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      vWorldNormal = normalize(mat3(modelMatrix) * normal);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-      fragmentShader: `
-    precision mediump float;
-
-uniform sampler2D cloudMap;
-uniform vec3 sunDirectionWorld;
-uniform vec3 moonDirectionWorld;
-uniform float moonAngularRadius;
-uniform float moonShadowFactor;
-
-varying vec3 vWorldNormal;
-varying vec2 vUv;
-
-void main() {
-
-  vec4 cloud = texture2D(cloudMap, vUv);
-
-  float density = cloud.r;
-  if (density < 0.05) discard;
-
-  vec3 normal = normalize(vWorldNormal);
-
-  // éclairage solaire
-  vec3 sunDir = normalize(sunDirectionWorld);
-  float ndl = dot(normal, sunDir);
-  float dayMix = smoothstep(-0.2, 0.2, ndl);
-
-  float light = mix(0.15, 1.0, dayMix);
-
-  vec3 finalColor = vec3(light);
-
-  // =======================
-  // OMBRE LUNAIRE (identique Terre)
-  // =======================
-
-  vec3 moonDir = normalize(moonDirectionWorld);
-
-  float dayMask = step(0.0, dot(normal, sunDir));
-  float angular = dot(normal, moonDir);
-
-  float radial = smoothstep(
-      cos(moonAngularRadius),
-      cos(moonAngularRadius * 0.5),
-      angular
-  );
-
-  float moonShadow = moonShadowFactor * radial * dayMask;
-
-  finalColor *= (1.0 - moonShadow);
-
-  gl_FragColor = vec4(finalColor, density * 0.6);
-}
-   `,
+      isClouds: true,
     });
+
+    cloudMaterial.blending = THREE.AdditiveBlending;
 
     this.earthClouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
     this.earthClouds.userData.ignoreRaycast = true;
@@ -353,56 +217,8 @@ void main() {
     moonTexture.colorSpace = THREE.SRGBColorSpace;
 
     // ========= LUNE =========
-    const moonMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        moonMap: { value: moonTexture },
-        sunPositionWorld: { value: new THREE.Vector3() },
-        earthPositionWorld: { value: new THREE.Vector3() },
-        eclipseFactor: { value: 1.0 },
-      },
-
-      vertexShader: `
-    varying vec3 vNormal;
-    varying vec3 vWorldPosition;
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      vNormal = normalize(mat3(modelMatrix) * normal);
-
-      vec4 worldPos = modelMatrix * vec4(position, 1.0);
-      vWorldPosition = worldPos.xyz;
-
-      gl_Position = projectionMatrix * viewMatrix * worldPos;
-    }
-  `,
-
-      fragmentShader: `
-    uniform sampler2D moonMap;
-    uniform vec3 sunPositionWorld;
-    uniform vec3 earthPositionWorld;
-    uniform float eclipseFactor;
-
-    varying vec3 vNormal;
-    varying vec3 vWorldPosition;
-    varying vec2 vUv;
-
-    void main() {
-      vec3 normal = normalize(vNormal);
-      vec3 lightDir = normalize(sunPositionWorld - vWorldPosition);
-
-      float ndl = max(dot(normal, lightDir), 0.0);
-      ndl = pow(ndl, 0.8);
-
-      float ambient = 0.18;
-
-      float sunLight = ndl * eclipseFactor;
-      float light = ambient + sunLight;
-
-      vec4 base = texture2D(moonMap, vUv);
-      gl_FragColor = vec4(base.rgb * light, 1.0);
-    }
-  `,
+    const moonMaterial = this.materialFactory.create({
+      map: moonTexture,
     });
 
     this.moon = new Moon({
@@ -439,7 +255,7 @@ void main() {
     );
     marsTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const marsMaterial = new THREE.MeshStandardMaterial({
+    const marsMaterial = this.materialFactory.create({
       map: marsTexture,
     });
 
@@ -480,7 +296,7 @@ void main() {
     );
     jupiterTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const jupiterMaterial = new THREE.MeshStandardMaterial({
+    const jupiterMaterial = this.materialFactory.create({
       map: jupiterTexture,
     });
 
@@ -521,7 +337,7 @@ void main() {
     );
     saturnTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const saturnMaterial = new THREE.MeshStandardMaterial({
+    const saturnMaterial = this.materialFactory.create({
       map: saturnTexture,
     });
 
@@ -543,6 +359,7 @@ void main() {
     });
 
     this.sun.add(this.saturn);
+    this.registerBody(this.saturn);
 
     const saturnOrbit = new Orbit(
       this.saturn.orbit.radius,
@@ -561,7 +378,7 @@ void main() {
     );
     uranusTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const uranusMaterial = new THREE.MeshStandardMaterial({
+    const uranusMaterial = this.materialFactory.create({
       map: uranusTexture,
     });
 
@@ -602,7 +419,7 @@ void main() {
     );
     neptuneTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const neptuneMaterial = new THREE.MeshStandardMaterial({
+    const neptuneMaterial = this.materialFactory.create({
       map: neptuneTexture,
     });
 
@@ -682,13 +499,29 @@ void main() {
     // Direction soleil -> Terre (référence unique)
     const sunDirection = sunWorld.clone().sub(earthWorld).normalize();
 
-    this.earthMaterial.uniforms.sunDirectionWorld.value.copy(sunDirection);
+    const earthForward = new THREE.Vector3(0, 0, 1)
+      .applyQuaternion(this.earth.anchor.quaternion)
+      .normalize();
 
-    if (this.earthClouds) {
-      this.earthClouds.material.uniforms.sunDirectionWorld.value.copy(
-        sunDirection,
-      );
-    }
+    const lightFactor = Math.max(0, earthForward.dot(sunDirection));
+
+    // Eclairage nuages et rotation
+    this.earthClouds.material.opacity = 0.3 * lightFactor;
+    this.earthClouds.rotation.y += delta * 0.3;
+
+    // Direction soleil pour CHAQUE objet
+    this.scene.traverse((obj) => {
+      if (obj.material && obj.material.uniforms?.sunDirectionWorld) {
+        const objWorld = new THREE.Vector3();
+        obj.getWorldPosition(objWorld);
+
+        const dir = new THREE.Vector3()
+          .subVectors(sunWorld, objWorld)
+          .normalize();
+
+        obj.material.uniforms.sunDirectionWorld.value.copy(dir);
+      }
+    });
 
     // Direction soleil -> Lune
     this.moon.mesh.material.uniforms.sunPositionWorld.value.copy(sunWorld);
@@ -783,16 +616,6 @@ void main() {
     this.earthMaterial.uniforms.moonShadowFactor.value = moonShadowFactor;
     this.earthMaterial.uniforms.moonDirectionWorld.value.copy(moonShadowDir);
     this.earthMaterial.uniforms.moonAngularRadius.value = 0.18;
-
-    if (this.earthClouds) {
-      this.earthClouds.material.uniforms.moonDirectionWorld.value.copy(
-        moonShadowDir,
-      );
-      this.earthClouds.material.uniforms.moonAngularRadius.value = 0.18;
-    }
-
-    this.earthClouds.material.uniforms.moonShadowFactor.value =
-      moonShadowFactor;
 
     // ==============================
     // UPDATES

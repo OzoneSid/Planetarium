@@ -5,6 +5,7 @@ import { UIManager } from "../ui/UIManager.js";
 import { CameraManager } from "./CameraManager.js";
 import { SelectionManager } from "./SelectionManager.js";
 import { Loader } from "../utils/Loader.js";
+import { ShaderManager } from "./ShaderManager.js";
 
 export class App {
   constructor() {
@@ -15,7 +16,7 @@ export class App {
     }
   }
 
-  startApp() {
+  async startApp() {
     // Ensure disclaimer overlay is hidden in case it was shown
     this.hideMobileWarning();
 
@@ -23,7 +24,21 @@ export class App {
 
     this.loader = new Loader();
 
-    this.solarSystem = new SolarSystem(this.sceneManager.scene, this.loader);
+    this.shaderManager = new ShaderManager();
+
+    await Promise.all([
+      this.shaderManager.load(
+        "planet",
+        "./shaders/planet/vertex.glsl",
+        "./shaders/planet/fragment.glsl",
+      ),
+    ]);
+
+    this.solarSystem = new SolarSystem(
+      this.sceneManager.scene,
+      this.loader,
+      this.shaderManager,
+    );
 
     this.skybox = new Skybox(this.sceneManager.scene, this.loader);
 
