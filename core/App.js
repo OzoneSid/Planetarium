@@ -40,8 +40,6 @@ export class App {
       this.shaderManager,
     );
 
-    this.skybox = new Skybox(this.sceneManager.scene, this.loader);
-
     this.cameraManager = new CameraManager(
       this.sceneManager.renderer,
       this.sceneManager.scene,
@@ -59,11 +57,18 @@ export class App {
       solarSystem: this.solarSystem,
     });
 
+    this.skybox = new Skybox(
+      this.sceneManager.scene,
+      this.loader,
+      this.cameraManager,
+    );
+
     this.sceneManager.setCameraManager(this.cameraManager);
 
     this.sceneManager.start();
 
     this.skybox.load();
+    this.skybox.update();
   }
 
   isMobile() {

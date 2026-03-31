@@ -7,7 +7,7 @@ export class CameraManager {
       60,
       window.innerWidth / window.innerHeight,
       0.1,
-      10_000,
+      25_000,
     );
 
     this.camera.position.set(0, 1100, 2500);
@@ -16,6 +16,19 @@ export class CameraManager {
 
     this.controls = new OrbitControls(this.camera, renderer.domElement);
     this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+
+    this.controls.zoomSpeed = 1;
+
+    this.controls.minDistance = 3;
+    this.controls.maxDistance = 3000;
+
+    this.currentDistance = this.camera.position.length();
+    this.targetDistance = this.currentDistance;
+
+    this.controls.addEventListener("change", () => {
+      this.targetDistance = this.controls.getDistance();
+    });
 
     this.mode = "free";
     this.targetBody = null;
@@ -64,8 +77,24 @@ export class CameraManager {
   }
 
   free() {
-    this.mode = "free";
-    this.targetBody = null;
+    this.currentDistance = THREE.MathUtils.lerp(
+      this.currentDistance,
+      this.targetDistance,
+      0.08,
+    );
+
+    // recalcul direction caméra → target
+    const dir = new THREE.Vector3()
+      .subVectors(this.camera.position, this.controls.target)
+      .normalize();
+
+    this.camera.position.copy(
+      this.controls.target
+        .clone()
+        .add(dir.multiplyScalar(this.currentDistance)),
+    );
+
+    this.controls.update();
   }
 
   update() {

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Sun } from "./Sun.js";
 import { Planet } from "./Planet.js";
 import { Moon } from "./Moon.js";
+import { Rings } from "./Rings.js";
 import { Orbit } from "./Orbit.js";
 import { PlanetMaterialFactory } from "../materials/PlanetMaterialFactory.js";
 import { SCALE, DISTANCE, SPEED } from "../utils/Constants.js";
@@ -370,6 +371,22 @@ export class SolarSystem extends THREE.Group {
     );
 
     this.sun.add(saturnOrbit);
+
+    // =========== TEXTURES ANNEAUX ============
+    const ringsTexture = this.loader.loadTexture(
+      "assets/textures/saturn/2k_saturn_ring_alpha.png",
+    );
+    ringsTexture.colorSpace = THREE.SRGBColorSpace;
+
+    // ============ ANNEAUX SATURNE ============
+    const rings = new Rings({
+      innerRadius: SCALE.SATURN_RADIUS * 1.3,
+      outerRadius: SCALE.SATURN_RADIUS * 2.2,
+      texture: ringsTexture,
+      tilt: 26.7,
+    });
+
+    rings.attachTo(this.saturn);
 
     // ============ TEXTURES URANUS =============
 
