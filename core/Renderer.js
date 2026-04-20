@@ -11,5 +11,10 @@ export class Renderer extends THREE.WebGLRenderer {
 
     this.setSize(window.innerWidth, window.innerHeight);
     this.setPixelRatio(window.devicePixelRatio);
+
+    this.physicallyCorrectLights = true;
+    this.outputColorSpace = THREE.SRGBColorSpace;
+    this.toneMapping = THREE.ACESFilmicToneMapping;
+    this.toneMappingExposure = 1.0;
   }
 }

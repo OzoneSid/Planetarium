@@ -25,9 +25,16 @@ export class Rings {
       side: THREE.DoubleSide,
       roughness: 1,
       metalness: 0,
+
+      alphaTest: 0.1,
+
+      emissive: new THREE.Color(0xffffff),
+      emissiveIntensity: 0.05,
     });
 
     this.mesh = new THREE.Mesh(geometry, material);
+
+    this.mesh.receiveShadow = true;
 
     // Orientation
     this.mesh.rotation.x = Math.PI / 2;

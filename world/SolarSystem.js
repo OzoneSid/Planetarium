@@ -513,6 +513,8 @@ export class SolarSystem extends THREE.Group {
     // ÉCLAIRAGE SOLAIRE GLOBAL
     // ==============================
 
+    this.sun.light.position.copy(sunWorld);
+
     // Direction soleil -> Terre (référence unique)
     const sunDirection = sunWorld.clone().sub(earthWorld).normalize();
 

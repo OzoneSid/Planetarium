@@ -46,10 +46,9 @@ export class Sun extends CelestialBody {
     this.light.shadow.radius = 4;
     this.light.shadow.bias = -0.0005;
 
-    this.add(this.light);
+    this.light.target.position.set(1000, 0, 0);
 
-    this.light.target.position.set(0, 0, 0);
-    this.add(this.light.target);
+    this.scene.add(this.light.target);
   }
 
   addSatellite(body) {

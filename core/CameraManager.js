@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { Planet } from "../world/Planet.js";
+import { Sun } from "../world/Sun.js";
+import { SCALE } from "../utils/Constants.js";
 
 export class CameraManager {
   constructor(renderer, scene) {
@@ -18,9 +21,9 @@ export class CameraManager {
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
 
-    this.controls.zoomSpeed = 1;
+    this.controls.zoomSpeed = 2.5;
 
-    this.controls.minDistance = 3;
+    this.controls.minDistance = SCALE.SUN_RADIUS * 5;
     this.controls.maxDistance = 3000;
 
     this.currentDistance = this.camera.position.length();
@@ -57,16 +60,35 @@ export class CameraManager {
   }
 
   follow(body) {
-    const radius = body.mesh?.geometry?.boundingSphere?.radius ?? 5;
-    this.offset.set(0, radius * 1.5, radius * 6);
+    const geometry = body.mesh?.geometry;
+    let radius = geometry?.parameters?.radius;
+
+    if (radius == null && geometry) {
+      geometry.computeBoundingSphere();
+      radius = geometry.boundingSphere?.radius;
+    }
+
+    radius = radius ?? 5;
+
+    const targetPos = body.getWorldAnchorPosition(this._tmp);
+
+    // BODY CAMERA POSITION
+    if (body instanceof Planet) {
+      const minDistance = radius * 3.5;
+      this.controls.minDistance = minDistance;
+      this.offset.set(0, radius * 0.25, minDistance);
+    } else if (body instanceof Sun) {
+      const minDistance = radius * 5;
+      this.controls.minDistance = minDistance;
+      this.offset.set(0, radius * 0.5, minDistance);
+    } else {
+      this.offset.set(0, radius * 1.5, radius * 6);
+    }
 
     this.mode = "follow";
     this.targetBody = body;
 
-    const targetPos = body.getWorldAnchorPosition(this._tmp);
-
-    this.camera.position.copy(this.offset);
-    body.localToWorld(this.camera.position);
+    this.camera.position.copy(targetPos).add(this.offset);
 
     this.controls.target.copy(targetPos);
     this.controls.update();
@@ -117,6 +139,7 @@ export class CameraManager {
       this.camera.position.copy(targetPos).add(offset);
       this.controls.target.copy(targetPos);
       this.controls.update();
+
       return;
     }
 

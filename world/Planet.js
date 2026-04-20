@@ -26,7 +26,7 @@ export class Planet extends CelestialBody {
     mesh.receiveShadow = true;
     mesh.userData.body = this;
 
-    // =================== LOD
+    // =================== LOD ================= //
 
     this.lod = new THREE.LOD();
 
