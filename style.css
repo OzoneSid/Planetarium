@@ -145,29 +145,34 @@
 
 .mobile-warning-content {
   max-width: 90%;
-  width: 420px;
+  width: 50rem;
+  max-height: 35%;
+  height: 30rem;
   border-radius: 14px;
   padding: 24px;
   background: rgba(10, 10, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  justify-content: center;
 }
 
 .mobile-warning-content h1 {
   margin: 0 0 12px;
-  font-size: 1.4rem;
+  font-size: 4rem;
 }
 
 .mobile-warning-content p {
   margin: 0 0 16px;
-  font-size: 1rem;
+  font-size: 3rem;
   line-height: 1.4;
   opacity: 0.95;
 }
 
 #mobile-warning-dismiss {
+  width: 30%;
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.35);
   color: white;
+  font-size: 3rem;
   border-radius: 8px;
   padding: 8px 14px;
   cursor: pointer;
