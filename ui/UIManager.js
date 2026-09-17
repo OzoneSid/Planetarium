@@ -17,7 +17,12 @@ export class UIManager {
     this.timeFactor = document.getElementById("time-factor");
     this.bodyList = document.getElementById("body-list");
 
+    this.timeBackwardImg = this.timeBackward.querySelector("img");
+    this.timePauseImg = this.timePause.querySelector("img");
+    this.timeForwardImg = this.timeForward.querySelector("img");
+
     this.menuButton.addEventListener("click", () => {
+      this.menuButton.classList.toggle("open");
       this.dropdown.classList.toggle("hidden");
       this.timeMenu.classList.toggle("hidden");
     });
@@ -31,9 +36,20 @@ export class UIManager {
     tree.forEach((node) => this.createNode(node, this.bodyList));
   }
 
+  // Créer un élément de liste
   createNode(node, container) {
     const li = document.createElement("li");
-    li.textContent = node.name;
+
+    const icon = document.createElement("img");
+    icon.src = node.icon;
+    icon.alt = node.name;
+    icon.className = "body-list-icon";
+
+    const label = document.createElement("span");
+    label.textContent = node.name;
+
+    li.appendChild(icon);
+    li.appendChild(label);
 
     li.onclick = () => {
       this.cameraManager.follow(node.ref);
@@ -123,16 +139,19 @@ export class UIManager {
 
   updateTimeDisplay() {
     if (this.currentScale === 0) {
-      this.timeFactor.textContent = "⏸";
-      this.timePause.textContent = "▶";
+      this.timeFactor.innerHTML =
+        '<img src="assets/ui/pause-icon.svg" alt="paused" class="time-factor-icon" />';
+      this.timePauseImg.src = "assets/ui/forward-icon.svg";
+      this.timePauseImg.alt = "play";
       return;
     }
 
-    this.timePause.textContent = "⏸";
+    this.timePauseImg.src = "assets/ui/pause-icon.svg";
+    this.timePauseImg.alt = "pause";
 
     const direction = this.currentScale > 0 ? "" : "-";
     const value = Math.abs(this.currentScale);
 
-    this.timeFactor.textContent = direction + "x" + value;
+    this.timeFactor.textContent = `${this.currentScale > 0 ? "" : "-"}${Math.abs(this.currentScale)}x`;
   }
 }

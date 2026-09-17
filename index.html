@@ -30,17 +30,31 @@
       <canvas id="scene3d" tabindex="0"></canvas>
 
       <div id="main-ui">
-        <div id="menu-button">☉</div>
-
-        <div id="dropdown-menu" class="hidden">
-          <ul id="body-list"></ul>
+        <div id="menu-button">
+          <span class="menu-icon"
+            ><img src="/assets/ui/open-icon.svg" alt="menu"
+          /></span>
         </div>
 
-        <div id="time-menu" class="hidden">
-          <button id="time-backward">◀</button>
-          <button id="time-pause">⏸</button>
-          <button id="time-forward">▶</button>
-          <span id="time-factor">x1</span>
+        <div id="menu-shadow">
+          <div id="dropdown-menu" class="hidden">
+            <ul id="body-list"></ul>
+          </div>
+        </div>
+
+        <div id="menu-shadow">
+          <div id="time-menu" class="hidden">
+            <button id="time-backward">
+              <img src="assets/ui/backward-icon.svg" alt="back" />
+            </button>
+            <button id="time-pause">
+              <img src="assets/ui/pause-icon.svg" alt="pause" />
+            </button>
+            <button id="time-forward">
+              <img src="assets/ui/forward-icon.svg" alt="forward" />
+            </button>
+            <span id="time-factor"></span>
+          </div>
         </div>
       </div>
 

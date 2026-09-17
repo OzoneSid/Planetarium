@@ -19,11 +19,28 @@ export class SolarSystem extends THREE.Group {
 
     this.bodies = [];
 
+    // ========= TEXTURES TOKENS =========
+
+    const tokenTexture = this.loader.loadTexture("assets/ui/token-icon.svg");
+
+    const tokenMaterial = new THREE.SpriteMaterial({
+      map: tokenTexture,
+      transparent: true,
+      depthTest: false,
+    });
+
     // ========= SOLEIL =========
     this.sun = new Sun(this.scene, this.loader);
     this.sun.name = "Sun";
     this.add(this.sun);
     this.registerBody(this.sun);
+
+    const sunToken = new THREE.Sprite(tokenMaterial);
+    const sunTokenSize = SCALE.SUN_RADIUS * 0.15;
+    sunToken.scale.setScalar(sunTokenSize);
+
+    this.sun.anchor.add(sunToken);
+    sunToken.position.set(0, 0, 0);
 
     // ============ TEXTURES MERCURE =============
 
@@ -66,6 +83,13 @@ export class SolarSystem extends THREE.Group {
 
     this.sun.add(mercuryOrbit);
 
+    const mercuryToken = new THREE.Sprite(tokenMaterial);
+    const mercuryTokenSize = SCALE.MERCURY_RADIUS * 0.15;
+    mercuryToken.scale.setScalar(mercuryTokenSize);
+
+    this.mercury.anchor.add(mercuryToken);
+    mercuryToken.position.set(0, 0, 0);
+
     // ============ TEXTURES VENUS =============
 
     const venusTexture = this.loader.loadTexture(
@@ -91,7 +115,7 @@ export class SolarSystem extends THREE.Group {
         eccentricity: 0.0067,
         inclination: 3.4,
       },
-      lodColor: 0xd6c28a,
+      lodColor: 0xe88a00,
     });
 
     this.sun.add(this.venus);
@@ -102,10 +126,17 @@ export class SolarSystem extends THREE.Group {
       this.venus.orbit.eccentricity,
       this.venus.orbit.inclination,
       this.venus,
-      0xd6c28a,
+      0xe88a00,
     );
 
     this.sun.add(venusOrbit);
+
+    const venusToken = new THREE.Sprite(tokenMaterial);
+    const venusTokenSize = SCALE.VENUS_RADIUS * 0.15;
+    venusToken.scale.setScalar(venusTokenSize);
+
+    this.venus.anchor.add(venusToken);
+    venusToken.position.set(0, 0, 0);
 
     // ========= TEXTURES TERRE =========
     const earthDay = this.loader.loadTexture(
@@ -171,6 +202,13 @@ export class SolarSystem extends THREE.Group {
     this.sun.add(earthOrbit);
 
     this.earth.mesh.material.lights = false;
+
+    const earthToken = new THREE.Sprite(tokenMaterial);
+    const earthTokenSize = SCALE.EARTH_RADIUS * 0.15;
+    earthToken.scale.setScalar(earthTokenSize);
+
+    this.earth.anchor.add(earthToken);
+    earthToken.position.set(0, 0, 0);
 
     // ========= NUAGES TERRE =========
     const cloudGeometry = new THREE.SphereGeometry(
@@ -249,6 +287,13 @@ export class SolarSystem extends THREE.Group {
 
     this.earth.satellitesPivot.add(moonOrbitLine);
 
+    const moonToken = new THREE.Sprite(tokenMaterial);
+    const moonTokenSize = SCALE.MOON_RADIUS * 0.3;
+    moonToken.scale.setScalar(moonTokenSize);
+
+    this.moon.anchor.add(moonToken);
+    moonToken.position.set(0, 0, 0);
+
     // ============ TEXTURES MARS =============
 
     const marsTexture = this.loader.loadTexture(
@@ -289,6 +334,13 @@ export class SolarSystem extends THREE.Group {
     );
 
     this.sun.add(marsOrbit);
+
+    const marsToken = new THREE.Sprite(tokenMaterial);
+    const marsTokenSize = SCALE.MARS_RADIUS * 0.15;
+    marsToken.scale.setScalar(marsTokenSize);
+
+    this.mars.anchor.add(marsToken);
+    marsToken.position.set(0, 0, 0);
 
     // ============ TEXTURES JUPITER =============
 
@@ -331,6 +383,13 @@ export class SolarSystem extends THREE.Group {
 
     this.sun.add(jupiterOrbit);
 
+    const jupiterToken = new THREE.Sprite(tokenMaterial);
+    const jupiterTokenSize = SCALE.JUPITER_RADIUS * 0.15;
+    jupiterToken.scale.setScalar(jupiterTokenSize);
+
+    this.jupiter.anchor.add(jupiterToken);
+    jupiterToken.position.set(0, 0, 0);
+
     // ============ TEXTURES SATURNE =============
 
     const saturnTexture = this.loader.loadTexture(
@@ -371,6 +430,13 @@ export class SolarSystem extends THREE.Group {
     );
 
     this.sun.add(saturnOrbit);
+
+    const saturnToken = new THREE.Sprite(tokenMaterial);
+    const saturnTokenSize = SCALE.SATURN_RADIUS * 0.15;
+    saturnToken.scale.setScalar(saturnTokenSize);
+
+    this.saturn.anchor.add(saturnToken);
+    saturnToken.position.set(0, 0, 0);
 
     // =========== TEXTURES ANNEAUX ============
     const ringsTexture = this.loader.loadTexture(
@@ -429,6 +495,13 @@ export class SolarSystem extends THREE.Group {
 
     this.sun.add(uranusOrbit);
 
+    const uranusToken = new THREE.Sprite(tokenMaterial);
+    const uranusTokenSize = SCALE.URANUS_RADIUS * 0.15;
+    uranusToken.scale.setScalar(uranusTokenSize);
+
+    this.uranus.anchor.add(uranusToken);
+    uranusToken.position.set(0, 0, 0);
+
     // ============ TEXTURES NEPTUNE =============
 
     const neptuneTexture = this.loader.loadTexture(
@@ -470,6 +543,13 @@ export class SolarSystem extends THREE.Group {
 
     this.sun.add(neptuneOrbit);
 
+    const neptuneToken = new THREE.Sprite(tokenMaterial);
+    const neptuneTokenSize = SCALE.NEPTUNE_RADIUS * 0.15;
+    neptuneToken.scale.setScalar(neptuneTokenSize);
+
+    this.neptune.anchor.add(neptuneToken);
+    neptuneToken.position.set(0, 0, 0);
+
     // ============== FIN DE GENERATION ==================
 
     scene.add(this);
@@ -485,10 +565,25 @@ export class SolarSystem extends THREE.Group {
     parent.childrenBodies.push(satellite);
   }
 
+  getBodyIconPath(body) {
+    if (body instanceof Sun) {
+      return "assets/ui/sun-icon.svg";
+    }
+
+    if (body instanceof Moon) {
+      return "assets/ui/moon-icon.svg";
+    }
+
+    if (body instanceof Planet) {
+      return "assets/ui/planet-icon.svg";
+    }
+  }
+
   buildNode(body) {
     return {
       name: body.name,
       ref: body,
+      icon: this.getBodyIconPath(body),
       children: (body.childrenBodies || []).map((child) =>
         this.buildNode(child),
       ),
