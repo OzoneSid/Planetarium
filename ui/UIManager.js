@@ -17,6 +17,11 @@ export class UIManager {
     this.timeFactor = document.getElementById("time-factor");
     this.bodyList = document.getElementById("body-list");
 
+    this.bodyInfoPanel = document.getElementById("body-info-panel");
+    this.bodyInfoClose = document.getElementById("body-info-close");
+    this.bodyInfoName = document.getElementById("body-info-name");
+    this.bodyInfoProperties = document.getElementById("body-properties");
+
     this.timeBackwardImg = this.timeBackward.querySelector("img");
     this.timePauseImg = this.timePause.querySelector("img");
     this.timeForwardImg = this.timeForward.querySelector("img");
@@ -25,6 +30,10 @@ export class UIManager {
       this.menuButton.classList.toggle("open");
       this.dropdown.classList.toggle("hidden");
       this.timeMenu.classList.toggle("hidden");
+    });
+
+    this.bodyInfoClose.addEventListener("click", () => {
+      this.closeBodyInfo();
     });
 
     this.initBodies();
@@ -149,9 +158,33 @@ export class UIManager {
     this.timePauseImg.src = "assets/ui/pause-icon.svg";
     this.timePauseImg.alt = "pause";
 
-    const direction = this.currentScale > 0 ? "" : "-";
-    const value = Math.abs(this.currentScale);
-
     this.timeFactor.textContent = `${this.currentScale > 0 ? "" : "-"}${Math.abs(this.currentScale)}x`;
+  }
+
+  showBodyInfo(body) {
+    this.bodyInfoName.textContent = body.name;
+    this.bodyInfoProperties.replaceChildren();
+
+    for (const { label, value } of body.prop ?? []) {
+      const term = document.createElement("dt");
+      const description = document.createElement("dd");
+
+      term.textContent = label;
+      description.textContent = value;
+      this.bodyInfoProperties.append(term, description);
+    }
+
+    this.bodyInfoPanel.classList.remove("hidden");
+    this.bodyInfoPanel.classList.add("is-open");
+
+    console.log({
+      name: body.name,
+      orbit: body.orbit,
+      rotationSpeed: body.rotationSpeed,
+    });
+  }
+
+  closeBodyInfo() {
+    this.bodyInfoPanel.classList.remove("is-open");
   }
 }

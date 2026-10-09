@@ -63,6 +63,10 @@ export class App {
       this.cameraManager,
     );
 
+    this.selectionManager.setTokenClickHandler((body) => {
+      this.ui.showBodyInfo(body);
+    });
+
     this.sceneManager.setCameraManager(this.cameraManager);
 
     this.sceneManager.start();
