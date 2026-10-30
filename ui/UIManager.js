@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 export class UIManager {
   constructor({ time, cameraManager, solarSystem }) {
     this.time = time;
@@ -21,6 +23,10 @@ export class UIManager {
     this.bodyInfoClose = document.getElementById("body-info-close");
     this.bodyInfoName = document.getElementById("body-info-name");
     this.bodyInfoProperties = document.getElementById("body-properties");
+
+    this.connectorPosition = new THREE.Vector3();
+    this.bodyConnector = document.getElementById("body-connector");
+    this.bodyConnectorLine = document.getElementById("body-connector-line");
 
     this.timeBackwardImg = this.timeBackward.querySelector("img");
     this.timePauseImg = this.timePause.querySelector("img");
@@ -161,7 +167,54 @@ export class UIManager {
     this.timeFactor.textContent = `${this.currentScale > 0 ? "" : "-"}${Math.abs(this.currentScale)}x`;
   }
 
+  updateConnector() {
+    const token = this.selectedBody?.token;
+
+    if (!token || !this.bodyInfoPanel.classList.contains("is-open")) {
+      this.bodyConnector.classList.add("hidden");
+      return;
+    }
+
+    const camera = this.cameraManager.camera;
+    camera.updateMatrixWorld();
+
+    token.getWorldPosition(this.connectorPosition);
+    this.connectorPosition.project(camera);
+
+    const { x, y, z } = this.connectorPosition;
+
+    if (z < -1 || z > 1 || x < -1 || x > 1 || y < -1 || y > 1) {
+      this.bodyConnector.classList.add("hidden");
+      return;
+    }
+
+    const svgRect = this.bodyConnector.getBoundingClientRect();
+    const panelRect = this.bodyInfoPanel.getBoundingClientRect();
+
+    const tokenX = (x * 0.5 + 0.5) * svgRect.width;
+    const tokenY = (-y * 0.5 + 0.5) * svgRect.height;
+
+    const endX = panelRect.left - svgRect.left + 1;
+    const endY = panelRect.top - svgRect.top + 1;
+
+    const direction = Math.sign(endX - tokenX) || 1;
+    const lead = Math.min(64, Math.abs(endX - tokenX) / 2);
+    const tail = Math.min(48, Math.abs(endX - tokenX) / 2);
+
+    const firstBendX = tokenX + direction * lead;
+    const secondBendX = endX - direction * tail;
+
+    this.bodyConnectorLine.setAttribute(
+      "points",
+      `${tokenX},${tokenY} ${firstBendX},${tokenY} ${secondBendX},${endY} ${endX},${endY}`,
+    );
+
+    this.bodyConnector.classList.remove("hidden");
+  }
+
   showBodyInfo(body) {
+    this.selectedBody = body;
+
     this.bodyInfoName.textContent = body.name;
     this.bodyInfoProperties.replaceChildren();
 
@@ -174,8 +227,8 @@ export class UIManager {
       this.bodyInfoProperties.append(term, description);
     }
 
-    this.bodyInfoPanel.classList.remove("hidden");
     this.bodyInfoPanel.classList.add("is-open");
+    this.updateConnector();
 
     console.log({
       name: body.name,
@@ -186,5 +239,7 @@ export class UIManager {
 
   closeBodyInfo() {
     this.bodyInfoPanel.classList.remove("is-open");
+    this.selectedBody = null;
+    this.bodyConnector.classList.add("hidden");
   }
 }

@@ -6,6 +6,7 @@ uniform sampler2D nightMap;
 uniform bool useNightMap;
 uniform bool useMoonShadow;
 uniform bool isClouds;
+uniform float opacity;
 
 uniform vec3 sunDirectionWorld;
 
@@ -90,5 +91,5 @@ void main() {
   finalAlpha = alpha * dayMask * 0.7;
 }
 
-  gl_FragColor = vec4(finalRGB, finalAlpha);
+  gl_FragColor = vec4(finalRGB, finalAlpha * opacity);
 }

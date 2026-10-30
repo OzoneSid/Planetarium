@@ -7,6 +7,33 @@ import { Orbit } from "./Orbit.js";
 import { PlanetMaterialFactory } from "../materials/PlanetMaterialFactory.js";
 import { SCALE, DISTANCE, SPEED, PROPS } from "../utils/Constants.js";
 
+class BodyToken extends THREE.Sprite {
+  constructor(material, size, pulsePhase) {
+    super(material);
+
+    this.scale.setScalar(size);
+    this.userData.isBodyToken = true;
+    this.userData.baseScale = this.scale.clone();
+    this.userData.pulsePhase = pulsePhase;
+    this.userData.isHovered = false;
+    this.elapsedTime = 0;
+  }
+
+  update(delta) {
+    this.elapsedTime += delta;
+
+    const pulse =
+      1.1 +
+      0.08 *
+        Math.sin(
+          this.elapsedTime * 2 * Math.PI * 0.8 + this.userData.pulsePhase,
+        );
+    const hoverScale = this.userData.isHovered ? 1.25 : 1;
+
+    this.scale.copy(this.userData.baseScale).multiplyScalar(pulse * hoverScale);
+  }
+}
+
 export class SolarSystem extends THREE.Group {
   constructor(scene, loader, shaderManager) {
     super();
@@ -18,6 +45,7 @@ export class SolarSystem extends THREE.Group {
     this.materialFactory = new PlanetMaterialFactory(this.shaderManager);
 
     this.bodies = [];
+    this.tokenCount = 0;
 
     // ========= TEXTURES TOKENS =========
 
@@ -507,11 +535,9 @@ export class SolarSystem extends THREE.Group {
       depthTest: false,
     });
 
-    const token = new THREE.Sprite(material);
-    token.scale.setScalar(size);
-    token.userData.isBodyToken = true;
+    const token = new BodyToken(material, size, this.tokenCount * 0.7);
+    this.tokenCount += 1;
     token.userData.body = body;
-    token.userData.baseScale = token.scale.clone();
 
     body.anchor.add(token);
     token.position.set(0, 0, 0);

@@ -30,6 +30,7 @@ export class PlanetMaterialFactory {
         lightPosition: { value: new THREE.Vector3() },
 
         eclipseFactor: { value: 0 },
+        opacity: { value: 1 },
 
         isClouds: { value: isClouds },
 

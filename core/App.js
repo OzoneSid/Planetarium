@@ -68,6 +68,7 @@ export class App {
     });
 
     this.sceneManager.setCameraManager(this.cameraManager);
+    this.sceneManager.setUIManager(this.ui);
 
     this.sceneManager.start();
 

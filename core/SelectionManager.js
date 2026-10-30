@@ -132,13 +132,7 @@ export class SelectionManager {
   }
 
   setTokenHighlight(token, isHighlighted) {
-    const baseScale = token.userData.baseScale;
-
-    token.scale.copy(baseScale);
-
-    if (isHighlighted) {
-      token.scale.multiplyScalar(1.25);
-    }
+    token.userData.isHovered = isHighlighted;
   }
 
   setTokenClickHandler(callback) {

@@ -13,6 +13,8 @@ export class SceneManager {
     this.time = new Time();
 
     this.cameraManager = null;
+    this.cameraManager = null;
+    this.uiManager = null;
 
     this.renderer.setAnimationLoop(this.update.bind(this));
     this.renderer.shadowMap.enabled = true;
@@ -25,33 +27,35 @@ export class SceneManager {
     this.cameraManager = cameraManager;
   }
 
+  setUIManager(uiManager) {
+    this.uiManager = uiManager;
+  }
+
   update() {
     const delta = this.time.getDelta();
 
     // Update du monde (rotations, shaders, orbites)
     this.scene.traverse((obj) => {
-      if (obj.update && !(obj instanceof THREE.LOD)) {
+      if (obj.update) {
         obj.update(delta);
       }
     });
 
     this.scene.updateMatrixWorld(true);
 
-    const camera = this.cameraManager?.camera;
-
-    // Update des LOD
-    if (camera) {
-      this.scene.traverse((obj) => {
-        if (obj instanceof THREE.LOD) {
-          obj.update(camera);
-        }
-      });
-    }
-
     // Update caméra APRÈS le monde
     if (this.cameraManager) {
       this.cameraManager.update(delta);
-      this.renderer.render(this.scene, this.cameraManager.camera);
+
+      const camera = this.cameraManager.camera;
+      this.scene.traverse((obj) => {
+        if (obj.updateLOD) {
+          obj.updateLOD(camera);
+        }
+      });
+
+      this.uiManager?.updateConnector();
+      this.renderer.render(this.scene, camera);
     }
   }
 

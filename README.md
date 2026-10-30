@@ -25,6 +25,7 @@ L'accent est mis sur :
   - Nuages et anneaux
   - Eclairage nocturne terrestre
   - Ombres en temps réel
+  - LOD dynamiques
 
   - Ombres sur anneaux (EN COURS)
   - Système d'eclipse (EN COURS)

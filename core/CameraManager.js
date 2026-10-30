@@ -82,6 +82,7 @@ export class CameraManager {
       this.controls.minDistance = minDistance;
       this.offset.set(0, radius * 0.5, minDistance);
     } else {
+      this.controls.minDistance = radius * 5;
       this.offset.set(0, radius * 1.5, radius * 6);
     }
 
